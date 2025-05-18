@@ -1,0 +1,28 @@
+{
+  "name": "jan-project-package",
+  "version": "1.0.0",
+  "description": "package",
+  "main": "button_click.js",
+  "scripts": {
+    "test": "jest",
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Akshaj-Pawar/JanCourseWork.git"
+  },
+  "author": "AkshajPawar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Akshaj-Pawar/JanCourseWork/issues"
+  },
+  "homepage": "https://github.com/Akshaj-Pawar/JanCourseWork#readme",
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.9",
+    "supertest": "^7.0.0"
+  }
+}
