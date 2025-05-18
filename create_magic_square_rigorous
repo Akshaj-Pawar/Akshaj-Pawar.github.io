@@ -1,0 +1,107 @@
+import copy
+
+def is_it_magic(square):
+    #test 1: contains numbers 1 - 9
+    square_contents = []
+    for row in square:
+        for i in row:
+            if i > 9:
+                return False
+            if i < 1:
+                return False
+            if i in square_contents:
+                return False
+            else:
+                square_contents.append(i)
+    #test 2i: find sum
+    true_sum = 0
+    for i in square[0]:
+        true_sum += i
+    #test 2ii: compare to rows:
+    for row in square:
+        rowsum = 0
+        for i in row:
+            rowsum += i
+        if rowsum != true_sum:
+            return False
+    #2iii: compare to columns
+    col1 = [square[0][0], square[1][0], square[2][0]]
+    col2 = [square[0][1], square[1][1], square[2][1]]
+    col3 = [square[0][2], square[1][2], square[2][2]]
+    cols = [col1, col2, col3]
+    for col in cols:
+        colsum = 0
+        for i in col:
+            colsum += i
+        if colsum != true_sum:
+            return False
+    #2iv: compare to diagonals
+    dia1 = [square[0][0], square[1][1], square[2][2]]
+    dia2 = [square[0][2], square[1][1], square[2][0]]
+    dias = [dia1, dia2]
+    for d in dias:
+        diasum = 0
+        for i in d:
+            diasum += i
+        if diasum != true_sum:
+            return False
+    #all tests passed
+    return True
+
+def add_to_square(old_square, i, full_squares):
+    print(i)
+    if i == 0:
+        new_square = copy.deepcopy(old_square)
+        full_squares.append(new_square)
+    else:
+        for row in old_square:
+            for n in range(len(row)):
+                if row[n] == 0:
+                    row[n] = i
+                    i -= 1
+                    add_to_square(old_square, i, full_squares)
+                    row[n] = 0
+                    i += 1
+        return(full_squares)
+
+#note - got stuck on backtracking for a while - the issue was that line 63 was missing, this means as soon as the first square was generated, the loops kept dimissing the slots, because they were already full
+
+def generate_all_squares():
+    magic_squares = []
+    squares = []
+    i = 9
+    empty_square = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+    squares = add_to_square(empty_square, i, squares)
+    print(squares)
+    for square in squares:
+        if is_it_magic(square) == True:
+            magic_squares.append(square)
+    return(magic_squares)
+
+#magic_squares = generate_all_squares()
+magic_squares = generate_all_squares()
+
+min_diff = 2002
+min_diffs = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+msquare = [[4, 2, 7], [9, 5, 7], [0, 6, 7]]
+for Msquare in magic_squares:
+    differences = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    differences[0] = Msquare[0][0] - msquare[0][0]
+    differences[1] = Msquare[0][1] - msquare[0][1]
+    differences[2] = Msquare[0][2] - msquare[0][2]
+    differences[3] = Msquare[1][0] - msquare[1][0]
+    differences[4] = Msquare[1][1] - msquare[1][1]
+    differences[5] = Msquare[1][2] - msquare[1][2]
+    differences[6] = Msquare[2][0] - msquare[2][0]
+    differences[7] = Msquare[2][1] - msquare[2][1]
+    differences[8] = Msquare[2][2] - msquare[2][2]
+    sum_diff = 0
+    for i in differences:
+        sum_diff += abs(i)
+    if sum_diff < min_diff:
+        min_diff = sum_diff
+        min_diffs = differences.copy()
+        min_change_square = Msquare
+print('min changes: ' + str(min_diff))
+print('changes: ' + str(min_diffs))
+print('result: ' + str(min_change_square))

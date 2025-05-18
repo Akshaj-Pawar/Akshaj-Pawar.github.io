@@ -1,0 +1,97 @@
+import copy
+
+m = 2
+n = 3
+introvertsCount = 3
+extrovertsCount = 1
+grid = []
+happiness = 0
+
+def createGrid(m, n, grid):
+    for i in range(m):
+        grid.append([])
+        for j in range(n):
+            grid[i].append(0)
+    return(grid)
+
+#def calculateSum(grid):
+    sum = 0
+    for row in grid:
+        for e in row:
+            sum += e
+    return(sum)
+
+def findHappiness(grid):
+    global_happiness = 0
+    for r in range(len(grid)):
+        for e in range(len(grid[r])):
+            if grid[r][e] == 'I':
+                local_happiness = 120
+                if (e < (len(grid[r]) - 1)):
+                    if grid[r][e+1] != 0:
+                        local_happiness -= 30
+                if (e > 0):
+                    if grid[r][e-1] != 0:
+                        local_happiness -= 30
+                if (r < (len(grid) - 1)):
+                    if grid[r+1][e] != 0:
+                        local_happiness -= 30
+                if (r > 0):
+                    if grid[r-1][e] != 0:
+                        local_happiness -= 30
+            elif grid[r][e] == 'E':
+                local_happiness = 40
+                if (e < (len(grid[r]) - 1)):
+                    if grid[r][e+1] != 0:
+                        local_happiness += 20
+                if (e > 0):
+                    if grid[r][e-1] != 0:
+                        local_happiness += 20
+                if (r < (len(grid) - 1)):
+                    if grid[r+1][e] != 0:
+                        local_happiness += 20
+                if (r > 0):
+                    if grid[r-1][e] != 0:
+                        local_happiness += 20
+            else:
+                local_happiness = 0
+            global_happiness += local_happiness
+    return(global_happiness)
+
+def possiblePermutations(grid, introvertsCount, extrovertsCount, r, e, happy_grid, max_joy):
+    if (e < (len(grid[r]) - 1)):
+        e += 1
+    elif (r < (len(grid) - 1)):
+        r += 1
+        e = 0
+    else:
+        joy = findHappiness(grid)
+        if joy > max_joy:
+            happy_grid = copy.deepcopy(grid)
+            print(happy_grid)
+            max_joy = joy
+            print(max_joy)
+        return(happy_grid, max_joy)
+    person = grid[r][e]
+    if introvertsCount > 0:
+        grid[r][e] = 'I'
+        introvertsCount -= 1
+        happy_grid, max_joy = possiblePermutations(grid, introvertsCount, extrovertsCount, r, e, happy_grid, max_joy)
+        introvertsCount += 1
+    if extrovertsCount > 0:
+        grid[r][e] = 'E'
+        extrovertsCount -= 1
+        happy_grid, max_joy = possiblePermutations(grid, introvertsCount, extrovertsCount, r, e, happy_grid, max_joy)
+        extrovertsCount += 1
+    grid[r][e] = 0
+    happy_grid, max_joy = possiblePermutations(grid, introvertsCount, extrovertsCount, r, e, happy_grid, max_joy)
+    return(happy_grid, max_joy)
+
+
+grid = createGrid(m, n, grid)
+happy_grid, max_joy = possiblePermutations(grid, introvertsCount, extrovertsCount, 0, -1, [], 0)
+print(happy_grid)
+print(max_joy)
+
+#first of all, happiness function needs a way to detect borders, so it doesn't look for neighbours outside of the bounds of the list
+#then, we probably should consider better ways to this instead of generating every permutation

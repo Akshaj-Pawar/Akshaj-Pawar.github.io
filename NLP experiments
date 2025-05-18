@@ -1,0 +1,116 @@
+import os
+iskaggle = os.environ.get('KAGGLE_KERNEL_RUN_TYPE', '')
+import pandas as pd
+import numpy as np
+import matplotlib as plt
+from sklearn.metrics import f1_score, accuracy_score
+from datasets import Dataset,DatasetDict
+from transformers import AutoModelForSequenceClassification,AutoTokenizer
+from transformers import TrainingArguments,Trainer
+#these are hugging face things
+#other things to instal: tiktoken, sentencepiece, accelerate
+
+df = pd.read_csv('journal_entries.csv')
+#classifier input = regression input = text column
+#compare to class or score respectively
+ds = Dataset.from_pandas(df)
+
+model_nm = 'microsoft/deberta-v3-small'
+tokz = AutoTokenizer.from_pretrained(model_nm)
+
+def tok_func(x): 
+    return tokz(x["text"])
+
+tok_ds = ds.map(tok_func, batched=True)
+print(tok_ds[0])
+
+#metric calculation
+def show_corr(df, a, b):
+    x,y = df[a],df[b]
+    plt.scatter(x,y, alpha=0.5, s=4)
+    plt.title(f'{a} vs {b}; r: {corr(x, y):.2f}')
+
+def corr(pred_tup):
+    predictions, labels = pred_tup
+    predictions = predictions.squeeze()
+    corr = np.corrcoef(predictions, labels)[0][1]
+    mse = ((predictions - labels) ** 2).mean()
+    return {'mse': mse, 'pearson': corr}
+
+def acc(pred_tup):
+    logits, labels = pred_tup
+    predictions = logits.argmax(axis=-1) #calculates the highest probability out of the 6 classes
+    acc = accuracy_score(labels, predictions)
+    f1 = f1_score(labels, predictions, average="weighted")  # For class imbalance
+    return {"accuracy": acc, "f1": f1}
+
+#training
+bs = 35
+epochs = 5 #try reducing if overfitting
+lr = 6e-5 #experiment a bunch with this, 4e-5 best so far
+
+#classifier test
+#tok_ds = tok_ds.rename_columns({'intensity_class':'labels'})
+#intensity_to_label = {'none': 0, 'very low': 1, 'low': 2, 'medium': 3, 'high': 4, 'very high': 5}
+#tok_ds = tok_ds.map(lambda x: {'labels': intensity_to_label[x['labels']]})
+
+#validation set
+#dds = tok_ds.train_test_split(0.2, seed=42)
+#print(dds)
+#to improve the experiment, add to the validation set by getting notes made by others, and containing previously unseen exercises (would also be useful to double training set size)
+
+args = TrainingArguments('outputs', 
+                         learning_rate=lr, 
+                         warmup_ratio=0.1, 
+                         lr_scheduler_type='cosine', 
+                         fp16=False,
+                         eval_strategy="epoch",
+                         per_device_train_batch_size=bs, 
+                         per_device_eval_batch_size=bs*2, 
+                         num_train_epochs=epochs, 
+                         weight_decay=0.01, 
+                         report_to='none') #may have to reduce per device batch size to just bs
+
+#model = AutoModelForSequenceClassification.from_pretrained(model_nm, num_labels=6)
+
+#trainer = Trainer(model, 
+#                  args, 
+#                  train_dataset=dds['train'], 
+#                  eval_dataset=dds['test'],
+#                  tokenizer=tokz, 
+#                  compute_metrics=acc)
+#trainer.train()
+#print(" ")
+#trainer.evaluate()
+
+
+#revert to standard
+#tok_ds = tok_ds.rename_columns({'labels':'intensity_class'})
+
+#regressor test
+tok_ds = tok_ds.rename_columns({'intensity_score':'labels'})
+
+#validation set
+dds = tok_ds.train_test_split(0.2, seed=42)
+print(dds)
+
+model = AutoModelForSequenceClassification.from_pretrained(model_nm, num_labels=1, problem_type="regression")
+
+trainer = Trainer(model, 
+                  args, 
+                  train_dataset=dds['train'], 
+                  eval_dataset=dds['test'],
+                  tokenizer=tokz, 
+                  compute_metrics=corr)
+trainer.train()
+print(" ")
+trainer.evaluate()
+
+tok_ds = tok_ds.rename_columns({'labels':'intensity_score'})
+
+model.save_pretrained("ActivityIntensityRegressor")
+tokz.save_pretrained("ActivityIntensityRegressor")
+
+#regression has a tendency to overfit quickly but correlation is learned slowly. MSE falls quite quickly, but i have noticed that a large portion of the data is scored 0-0.15, and it might be that the model has just decided to always guess that
+#things to do: research models for lighter tasks or try to yoink the r/fitness dataset or try to set it up so you can pass prompts in
+#do whichever seems fun
