@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+<html lang="en">
+<div style="padding-top: 40px;">
+
+<head>
+    <meta charset="UTF-8">
+    <title>REGISTER</title>
+
+<div class=="form-group">
+    <form method = "POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="bt btn-secondary">Register</button>
+</div>
+
+</html>
+
+{% endblock %}
