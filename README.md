@@ -8,4 +8,4 @@ InteractiveWebQuiz is a single page webapp that functions as a BuzzFeed style qu
 
 NewsAggregator is a news aggregator with filtering functionality. It uses object oriented programming and was made using Python.
 
-BloggingSite is a blogging website complete with comments and ratings. Its an old project so isn't entirey indicative of my current skills (eg: it primarly functions client side, later websites i've created have robust server side fucntionality). Made using Python (Django).
+BloggingSite is a blogging website complete with comments and ratings. Its an old project so isn't entirely indicative of my current skills (eg: it primarly functions client side, later websites i've created have robust server side functionality). Made using Python (Django).
