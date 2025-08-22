@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+
+{% extends 'base.html' %}
+
+{% block content %}
+<html lang="en">
+<div style="padding-top: 40px;">
+
+    <h1></h1>
+</div>
+<head>
+    <meta charset="UTF-8">
+    <title>Blog1</title>
+</head>
+<body>
+<pre>
+    {{ blog_text }}
+</pre>
+</body>
+
+<br/><br/>
+<hr>
+<br/>
+<form action = "{% url 'like_post' post.pk %}" method="POST">
+    {% csrf_token %}
+    <button type="submit" name="post_id" value="{{ post.id }}" class="btn btn-primary btn-sm">Like</button>
+</form>
+
+</html>
+
+{% endblock %}

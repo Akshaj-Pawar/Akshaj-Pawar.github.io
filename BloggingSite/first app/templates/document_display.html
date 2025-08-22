@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+
+{% extends 'base.html' %}
+
+{% block content %}
+<html lang="en">
+<div style="padding-top: 40px;">
+    <h1></h1>
+</div>
+<head>
+    <meta charset="UTF-8">
+    <title>{{post.title}}</title>
+</head>
+
+<body>
+{% include post.file %}
+</body>
+
+<br/><br/>
+<hr>
+<br/>
+<form action="{% url 'like_post' post.pk %}" method="POST">
+    {% csrf_token %}
+    {% if user.is_authenticated %}
+        <button type="submit" name="post_id" value="{{ post.id }}" class="btn btn-primary btn-sm">Like</button>
+    {% endif %}
+</form>
+
+<br/><br/>
+
+<div>
+    <h1>Comment Section</h1>
+</div>
+
+{% if not post.Comments.all %}
+    No Comments <a href="{% url 'add_comment' post.pk %}" >Add Comment</a>
+
+{% else %}
+    <a href="{% url 'add_comment' post.pk %}" >Add Comment</a>
+    <br/><br/>
+
+    {% for comment in post.Comments.all %}
+        <br/>
+        <strong> {{ comment.username }} </strong>
+        <br/>
+        {{ comment.comment_text }}
+        <br/>
+    {% endfor %}
+
+{% endif %}
+
+</html>
+
+<br/><br/>
+<br/><br/>
+
+{% endblock %}

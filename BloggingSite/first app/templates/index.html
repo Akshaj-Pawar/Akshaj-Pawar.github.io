@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="padding-top: 40px;">
+    <h1>All Posts</h1>
+</div>
+<div class="row gy-3">
+    <p> </p>
+    <p> Hiya - I'm Design. Just your everyday science-pilled internet goblin. </p>
+    <p> I've done a lot of stuff during my impossible quest for a computer science degree - and figured I may as well post it somewhere. It might come in useful for someone. </p>
+    {% for posts in postss %}
+    <div class="col">
+        <div class="card h-100" style="width: 18rem;">
+            <img src={{posts.image}} class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">{{posts.title}}</h5>
+                <p class="card-text">{{posts.description}}</p>
+                <p class="card-text">Hits: {{posts.views}} | Likes: {{ posts.total_likes }}</p>
+                <a href="{{posts.link}}" class="btn btn-primary">Click here</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
